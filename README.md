@@ -28,7 +28,7 @@ the one in use on every run:
 | Order | Source | What it does | How it is enabled |
 |---|---|---|---|
 | 1 | Live cluster | Read-only Kubernetes API calls for pods, events, one pod log, and one workload definition | `K8S_LIVE_CLUSTER=true` |
-| 2 | `kubectl` snapshot | Parses real `kubectl ... -o json` files from a directory and filters them to the target workload | `K8S_SNAPSHOT_DIR=<dir>` |
+| 2 | `kubectl` snapshot | Parses `kubectl ... -o json` files from a directory and filters them to the target workload | `K8S_SNAPSHOT_DIR=<dir>` |
 | 3 | Bundled synthetic case | Reads one of ten fixture cases from `data/cases/` at inspection time | Selecting a demonstration |
 | 4 | Pasted evidence | Uses text supplied in the form | Filling in the evidence fields |
 
@@ -380,7 +380,9 @@ python -m pip check
 - The live-cluster path is implemented against the official client and covered
   by tests using a client double, but it has not been exercised against a real
   cluster in this repository's own verification runs. The snapshot path is
-  tested end to end against real `kubectl` JSON.
+  tested end to end, but against `kubectl`-format fixtures written by hand
+  rather than output captured from a running cluster; `data/sample_snapshot/`
+  is synthetic for the same reason.
 - Pods are matched to a workload by name prefix rather than by owner reference,
   so an unrelated workload sharing a name prefix could be included.
 - Pasted evidence remains supported, and its accuracy depends on the

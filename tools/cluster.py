@@ -275,7 +275,12 @@ def _bounded_log_text(text: str) -> str:
 
 
 class ClusterSnapshotSource:
-    """Read real kubectl JSON output an engineer captured into a directory."""
+    """Read kubectl JSON output from a directory on disk.
+
+    The format is what `kubectl ... -o json` produces, so a directory may hold
+    genuine captured output or equivalent fixtures; this class does not and
+    cannot distinguish between them.
+    """
 
     origin_label = "snapshot"
 
