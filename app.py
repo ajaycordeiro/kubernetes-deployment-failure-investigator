@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 from collections.abc import Mapping
 from typing import Any, Final
 from uuid import uuid4
 
 import streamlit as st
-import yaml
 from langgraph.types import Command
 
 from agent.graph import (
@@ -28,7 +26,7 @@ from agent.schemas import (
     SubmittedInvestigation,
     ToolError,
 )
-from tools import load_case_metadata, load_fixture
+from tools import load_case_metadata
 
 
 SOURCE_LABELS: Final[dict[str, str]] = {
@@ -187,39 +185,18 @@ def _apply_pending_sanitized_form() -> None:
                 st.session_state[key] = value
 
 
-def _safe_demo_document(case_id: str, fixture_name: str) -> str:
-    document = load_fixture(case_id, fixture_name)
-    if isinstance(document, str):
-        return document.strip()
-    safe_document = dict(document)
-    safe_document.pop("tool_behavior", None)
-    if fixture_name.endswith(".json"):
-        return json.dumps(safe_document, indent=2, sort_keys=True)
-    return yaml.safe_dump(safe_document, sort_keys=False).strip()
-
-
 def _load_demonstration(label: str) -> None:
-    """Populate the normal form from one approved sanitized corpus case."""
+    """Select one corpus case; its evidence is read from disk when inspected."""
 
     case_id, description = DEMONSTRATIONS[label]
     metadata = load_case_metadata(case_id)
     st.session_state.form_question = metadata.initial_symptom
     st.session_state.form_workload_name = metadata.workload_name
     st.session_state.form_namespace = metadata.namespace
-    st.session_state.form_workload_status = _safe_demo_document(
-        case_id, "workload_status.json"
-    )
-    st.session_state.form_kubernetes_events = (
-        ""
-        if case_id == "case_009"
-        else _safe_demo_document(case_id, "events.json")
-    )
-    st.session_state.form_container_logs = _safe_demo_document(
-        case_id, "logs.txt"
-    )
-    st.session_state.form_manifest_yaml = _safe_demo_document(
-        case_id, "manifest.yaml"
-    )
+    st.session_state.form_workload_status = ""
+    st.session_state.form_kubernetes_events = ""
+    st.session_state.form_container_logs = ""
+    st.session_state.form_manifest_yaml = ""
     st.session_state.form_demo_id = case_id
     st.session_state.form_demo_label = f"{label}: {description}"
     st.session_state.investigation_error = None
@@ -587,7 +564,8 @@ def _render_demo_loaders(disabled: bool) -> None:
     with st.container(border=True):
         st.markdown("#### Try a demonstration")
         st.caption(
-            "Each option fills this same form with sanitized synthetic evidence."
+            "Each option selects a bundled synthetic case. The agent reads its "
+            "evidence from disk as it inspects each source."
         )
         for label in DEMONSTRATIONS:
             if st.button(

@@ -191,6 +191,39 @@ def _load_demo_fixture(
         return _demo_source_error(demo_id, fixture_name)
 
 
+def _corpus_declared_fault(
+    fixture: Mapping[str, Any],
+    *,
+    demo_id: str,
+    fixture_name: str,
+    call_number: int,
+) -> ToolResult | None:
+    """Honor a fault that a synthetic corpus fixture declares for itself.
+
+    Fault injection is data-driven so that no case identifier appears in
+    runtime code; a fixture opts in by declaring a `tool_behavior` block.
+    """
+
+    behavior = fixture.get("tool_behavior")
+    if not isinstance(behavior, Mapping):
+        return None
+    failures = behavior.get("fail_first_attempts", 0)
+    if (
+        not isinstance(failures, int)
+        or isinstance(failures, bool)
+        or call_number > failures
+    ):
+        return None
+    return ToolResult(
+        ok=False,
+        error=_safe_error_message(
+            str(behavior.get("error_message", "Synthetic source timeout."))
+        ),
+        retryable=behavior.get("retryable") is True,
+        source=f"data/cases/{demo_id}/{fixture_name}",
+    )
+
+
 def _demo_value_result(
     value: object,
     *,
@@ -389,23 +422,14 @@ def inspect_kubernetes_events(
             return _malformed_result(
                 "kubernetes_events", "must contain an items list"
             )
-        call_number = _next_demo_event_call(canonical.demo_id)
-        behavior = fixture.get("tool_behavior")
-        if canonical.demo_id == "case_009" and isinstance(behavior, Mapping):
-            failures = behavior.get("fail_first_attempts", 0)
-            if (
-                isinstance(failures, int)
-                and not isinstance(failures, bool)
-                and call_number <= failures
-            ):
-                return ToolResult(
-                    ok=False,
-                    error=_safe_error_message(
-                        str(behavior.get("error_message", "Synthetic timeout."))
-                    ),
-                    retryable=behavior.get("retryable") is True,
-                    source=f"data/cases/{canonical.demo_id}/events.json",
-                )
+        fault = _corpus_declared_fault(
+            fixture,
+            demo_id=canonical.demo_id,
+            fixture_name="events.json",
+            call_number=_next_demo_event_call(canonical.demo_id),
+        )
+        if fault is not None:
+            return fault
         return _demo_value_result(
             fixture,
             capability="kubernetes_events",

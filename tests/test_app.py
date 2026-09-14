@@ -133,7 +133,11 @@ class StreamlitApplicationTests(TestCase):
         ):
             self.assertIn(required, labels)
 
-    def test_demo_loader_populates_the_same_form_without_ground_truth(self) -> None:
+    def test_demo_loader_selects_a_case_without_prefilling_its_evidence(
+        self,
+    ) -> None:
+        """A demo names the case; the agent must fetch the evidence itself."""
+
         app = AppTest.from_file(APP_PATH, default_timeout=10).run()
         _load_demo(app, "Normal diagnosis")
 
@@ -143,10 +147,14 @@ class StreamlitApplicationTests(TestCase):
             app.text_input(key="form_workload_name").value, "order-api"
         )
         self.assertEqual(app.text_input(key="form_namespace").value, "orders")
-        self.assertIn(
-            "ModuleNotFoundError",
-            app.text_area(key="form_container_logs").value,
-        )
+        self.assertEqual(app.session_state["form_demo_id"], "case_003")
+        for evidence_key in (
+            "form_workload_status",
+            "form_kubernetes_events",
+            "form_container_logs",
+            "form_manifest_yaml",
+        ):
+            self.assertEqual(app.text_area(key=evidence_key).value, "")
         rendered = " ".join(
             str(area.value) for area in app.text_area
         ).casefold()
