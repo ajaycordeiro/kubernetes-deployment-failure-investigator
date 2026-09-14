@@ -27,6 +27,11 @@ from agent.schemas import (
     ToolError,
 )
 from tools import load_case_metadata
+from tools.cluster import (
+    ClusterAccessError,
+    ClusterSnapshotSource,
+    resolve_cluster_source,
+)
 
 
 SOURCE_LABELS: Final[dict[str, str]] = {
@@ -131,7 +136,11 @@ def _trace_rows(public_decisions: list[dict[str, Any]]) -> list[str]:
             tool_name = str(entry.get("tool", ""))
             attempt = entry.get("attempt", "?")
             if entry.get("ok") is True:
-                outcome = "completed"
+                outcome = (
+                    "completed, but this source held no data for the workload"
+                    if entry.get("availability") in {"absent", "unavailable"}
+                    else "completed"
+                )
             elif entry.get("retryable") is True:
                 outcome = "temporary failure; one retry allowed"
             else:
@@ -427,7 +436,8 @@ def _render_evidence(
         return
     for item in selected:
         with st.container(border=True):
-            st.caption(SOURCE_LABELS.get(item.source_tool, "Submitted evidence"))
+            label = SOURCE_LABELS.get(item.source_tool, "Submitted evidence")
+            st.caption(f"{label} · retrieved from {item.raw_reference}")
             st.write(item.summary)
 
 
@@ -668,6 +678,30 @@ def _render_investigation_form() -> None:
         st.rerun()
 
 
+def _render_evidence_source_notice() -> None:
+    """State plainly where this run's evidence will actually come from."""
+
+    try:
+        source = resolve_cluster_source()
+    except ClusterAccessError as error:
+        st.warning(
+            f"A cluster source is configured but unreachable: {error} "
+            "Pasted evidence is still available."
+        )
+        return
+    if source is None:
+        st.caption(
+            "Evidence source: pasted evidence, or a bundled synthetic case"
+        )
+    elif isinstance(source, ClusterSnapshotSource):
+        st.caption(
+            f"Evidence source: kubectl snapshot “{source.directory.name}” "
+            "(read from disk during the investigation)"
+        )
+    else:
+        st.caption("Evidence source: live cluster, read-only API calls")
+
+
 def _apply_styles() -> None:
     st.markdown(
         """
@@ -743,8 +777,9 @@ def main() -> None:
         "asks for one missing detail, or prepares an engineer handoff."
     )
     st.caption(
-        "No live cluster access · No kubectl · No automatic remediation · Engineer review required"
+        "Read-only access · No automatic remediation · Engineer review required"
     )
+    _render_evidence_source_notice()
 
     error_message = st.session_state.get("investigation_error")
     if isinstance(error_message, str) and error_message:

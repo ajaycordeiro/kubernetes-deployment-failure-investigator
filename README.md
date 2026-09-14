@@ -16,7 +16,29 @@ and returns one of three safe outcomes:
 - a focused request for missing evidence; or
 - a structured handoff for engineer review.
 
-The project uses synthetic data and never connects to a Kubernetes cluster.
+Evidence can come from a real cluster, from captured `kubectl` output, from
+text an engineer pastes in, or from the bundled synthetic corpus. Every path is
+read-only.
+
+## Where evidence comes from
+
+The agent resolves each evidence source in this order, and the interface names
+the one in use on every run:
+
+| Order | Source | What it does | How it is enabled |
+|---|---|---|---|
+| 1 | Live cluster | Read-only Kubernetes API calls for pods, events, one pod log, and one workload definition | `K8S_LIVE_CLUSTER=true` |
+| 2 | `kubectl` snapshot | Parses real `kubectl ... -o json` files from a directory and filters them to the target workload | `K8S_SNAPSHOT_DIR=<dir>` |
+| 3 | Bundled synthetic case | Reads one of ten fixture cases from `data/cases/` at inspection time | Selecting a demonstration |
+| 4 | Pasted evidence | Uses text supplied in the form | Filling in the evidence fields |
+
+Sources 1 and 2 retrieve information the application did not already hold, so a
+tool call genuinely acquires evidence rather than reformatting its own input.
+Sources 3 and 4 exist so the project runs with no cluster at all.
+
+The source is chosen from operator environment variables, never from user
+input: a hosted deployment must not let a visitor aim the filesystem reader at
+an arbitrary path.
 
 ## Target users
 
@@ -40,6 +62,12 @@ Checkpointed LangGraph investigation
 Nebius       Five fixed          Deterministic
 structured   read-only tools     safety/routing guards
 output           |                    |
+                 v                    |
+   Live cluster (read-only API)       |
+   kubectl snapshot on disk           |
+   bundled synthetic case             |
+   pasted evidence                    |
+                 |                    |
                  +---------+----------+
                            v
           Diagnosis / clarification / engineer handoff
@@ -100,15 +128,24 @@ visible at run time instead of only described here.
 
 | Tool | Purpose |
 |---|---|
-| `inspect_workload_status` | Inspect bounded submitted Deployment and Pod status. |
-| `inspect_kubernetes_events` | Inspect bounded recent event data and warning signals. |
-| `inspect_container_logs` | Inspect a bounded recent log excerpt or record that logs are unavailable. |
-| `inspect_manifest_config` | Parse sanitized YAML and expose only diagnosis-relevant configuration. |
-| `search_runbook` | Search the bundled sanitized runbook by heading and keyword; results are reference context, never incident proof. |
+| `inspect_workload_status` | Retrieve Deployment and Pod status for the target workload and project it onto diagnosis-relevant fields. |
+| `inspect_kubernetes_events` | Retrieve recent events, filter them to the target workload and namespace, and order them by time. |
+| `inspect_container_logs` | Retrieve a bounded recent log excerpt, or record that logs are unavailable. |
+| `inspect_manifest_config` | Read the workload definition and expose only diagnosis-relevant configuration. |
+| `search_runbook` | Search the bundled runbook by heading and keyword; results are reference context, never incident proof. |
 
-All five capabilities are read-only. The three UI demonstrations populate the
-same validated form used for user input; they do not bypass the graph or read
-test ground truth.
+All five capabilities are read-only. Against a live cluster the first four use
+only read verbs — listing pods and events, reading one pod log, and reading one
+Deployment. `tools/cluster.py` imports no write operation, and a test fails the
+build if one ever appears there.
+
+`search_runbook` is honest keyword matching over one bundled document, not
+retrieval over an index; it is deliberately the weakest of the five and is
+never allowed to count as incident evidence.
+
+The three UI demonstrations select a case and let the agent read that case's
+evidence from disk as it inspects each source. They do not pre-fill the form,
+bypass the graph, or read test ground truth.
 
 ## State design
 
@@ -148,8 +185,12 @@ probe failure is not enough to infer a configuration mismatch.
 - A successful tool cannot be repeated.
 - Missing or unavailable evidence is a valid non-retryable result and can lead to
   clarification.
-- The recovery demonstration (`case_009`) makes its first events inspection time
-  out and its second inspection succeed; both attempts remain visible.
+- A snapshot file that cannot be read, or a cluster call that fails with a 5xx
+  or 429, is a genuine retryable failure and consumes the single retry.
+- The recovery demonstration uses a synthetic case whose fixture declares its
+  own fault: a `tool_behavior` block asks the events source to fail once. This
+  is data-driven, so no case identifier appears in runtime tool code, and both
+  attempts remain visible in the trace.
 
 ## Human in the loop
 
@@ -169,12 +210,18 @@ the requested evidence instead of starting over.
 
 ## Security boundaries
 
-- Synthetic, sanitized corpus or user-pasted evidence only
-- No live Kubernetes or OpenShift client and no kubeconfig loading
+- Read-only cluster access: only listing pods and events, reading one pod log,
+  and reading one Deployment. `tools/cluster.py` imports no write operation and
+  a test fails the build if one appears
 - No `kubectl`, shell, subprocess, or operating-system command execution in
-  runtime code
+  runtime code; cluster reads use the official client library
 - No restart, delete, scale, patch, apply, rollback, redeploy, or other
   remediation capability
+- The evidence source is operator configuration, never user input, so a hosted
+  visitor cannot aim the filesystem reader at an arbitrary path
+- Retrieved cluster content is sanitized on the way in: credential redaction,
+  prompt-injection neutralization, and per-source size bounds apply to live and
+  snapshot data exactly as they do to pasted text
 - Fixed five-tool runtime allowlist; every tool is read-only
 - Strict field sizes, unexpected-field rejection, YAML validation, bounded tool
   results, prompt-injection neutralization, and credential/Secret redaction
@@ -197,9 +244,10 @@ the requested evidence instead of starting over.
 │   ├── schemas.py               # Pydantic contracts
 │   ├── state.py                 # LangGraph TypedDict state
 ├── tools/
+│   ├── cluster.py               # Read-only live and snapshot cluster sources
 │   ├── diagnostics.py           # Exactly four incident-evidence inspection tools
 │   ├── runbook.py               # The fifth, reference-only search tool
-│   └── base.py                  # Bounded synthetic demonstration loader
+│   └── base.py                  # Bounded synthetic corpus loader
 ├── data/
 │   ├── cases/                   # Ten synthetic cases
 │   └── runbooks/                # Sanitized local reference content
@@ -238,9 +286,40 @@ streamlit run app.py
 ~~~
 
 Environment variables take precedence. Tests use mocked models and require no
-live API key or network access. If configuration is absent or invalid, the page
-stays available and shows a safe actionable message only after analysis is
-requested.
+live API key, cluster, or network access. If configuration is absent or invalid,
+the page stays available and shows a safe actionable message only after analysis
+is requested.
+
+## Capturing a cluster snapshot
+
+A snapshot lets the agent investigate real cluster output on a machine with no
+cluster access — useful for a laptop, a demo, or attaching evidence to a ticket.
+Capture it with read-only `kubectl` commands:
+
+~~~bash
+NS=orders
+mkdir -p snapshots/$NS/logs
+kubectl get pods -n $NS -o json        > snapshots/$NS/pods.json
+kubectl get events -n $NS -o json      > snapshots/$NS/events.json
+kubectl get deployments -n $NS -o json > snapshots/$NS/deployments.json
+kubectl logs -n $NS <pod-name> --tail=200 > snapshots/$NS/logs/<pod-name>.log
+~~~
+
+Then point the application at it:
+
+~~~dotenv
+K8S_SNAPSHOT_DIR=./snapshots/orders
+~~~
+
+The agent filters the snapshot to the workload and namespace it was asked
+about; log files are matched to pods by filename. Snapshots contain real
+cluster data, so treat them as sensitive and keep them out of version control.
+
+To read from a cluster directly instead, set `K8S_LIVE_CLUSTER=true` and
+optionally `K8S_CONTEXT`. Use a local or throwaway cluster — for example a
+`kind` cluster with a deliberately broken Deployment such as
+`image: nginx:doesnotexist`, which produces a genuine `ImagePullBackOff` with
+real events. Never point this project at a production cluster.
 
 ## Streamlit hosting
 
@@ -270,13 +349,20 @@ transient recovery, and malformed model output.
 
 Current certification baseline:
 
-- `103` tests passed;
+- `124` tests passed;
 - `249` scenario subtests passed;
+- a full investigation completed with no pasted evidence at all, every evidence
+  item traced to a `snapshot:` origin;
+- one live run against `data/sample_snapshot/` with the configured Nebius model
+  retrieved events, workload status, and the workload definition, then reached
+  the correct root cause at `0.95` confidence; the model chose the manifest
+  before the workload status, which the trace recorded as a deliberate
+  departure from the default order;
 - all 30 complete-evidence description variants diagnosed correctly or escalated
   in the provider-independent 50-scenario evaluation;
 - every incomplete case clarified or escalated rather than guessing;
-- `case_009` retried exactly once and `case_010` escalated;
-- every diagnosis cited visible submitted incident evidence;
+- the recovery case retried exactly once and the incomplete case escalated;
+- every diagnosis cited visible retrieved incident evidence;
 - no investigation exceeded six tool calls; and
 - no secret-like test value appeared in graph state or rendered output.
 
@@ -290,9 +376,15 @@ python -m pip check
 
 ## Known limitations
 
-- There is no live-cluster ingestion, Kubernetes API, `kubectl`, or remediation.
-- User evidence is pasted manually; accuracy depends on its completeness and
-  authenticity.
+- There is no remediation of any kind; every recommendation is advisory.
+- The live-cluster path is implemented against the official client and covered
+  by tests using a client double, but it has not been exercised against a real
+  cluster in this repository's own verification runs. The snapshot path is
+  tested end to end against real `kubectl` JSON.
+- Pods are matched to a workload by name prefix rather than by owner reference,
+  so an unrelated workload sharing a name prefix could be included.
+- Pasted evidence remains supported, and its accuracy depends on the
+  completeness and authenticity of what the user supplies.
 - Runbook search uses simple local heading/keyword matching, not RAG, embeddings,
   a vector database, or external memory.
 - Checkpoints are in memory and do not survive a process restart.

@@ -20,6 +20,10 @@ htmlcov/
 !.env.example
 .streamlit/secrets.toml
 
+# Captured cluster snapshots contain real cluster data
+snapshots/
+*.kubeconfig
+
 # IDE and operating-system files
 .idea/
 .vscode/

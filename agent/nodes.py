@@ -501,6 +501,11 @@ class InvestigationNodes:
                     "attempt": attempt,
                     "ok": result.ok,
                     "retryable": result.retryable,
+                    "availability": (
+                        result.data.get("availability")
+                        if result.ok and isinstance(result.data, Mapping)
+                        else None
+                    ),
                 },
             ],
         }

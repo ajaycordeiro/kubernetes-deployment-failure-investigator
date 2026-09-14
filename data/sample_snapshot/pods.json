@@ -1,0 +1,72 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "metadata": {
+        "name": "checkout-api-6d4f9b8c7d-2xk4p",
+        "namespace": "checkout",
+        "labels": {
+          "app": "checkout-api"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "checkout-api",
+            "image": "registry.example.internal/checkout/checkout-api:v3.2.0-rc4"
+          }
+        ]
+      },
+      "status": {
+        "phase": "Pending",
+        "conditions": [
+          {
+            "type": "Ready",
+            "status": "False",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [checkout-api]"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "checkout-api",
+            "ready": false,
+            "restartCount": 0,
+            "image": "registry.example.internal/checkout/checkout-api:v3.2.0-rc4",
+            "state": {
+              "waiting": {
+                "reason": "ImagePullBackOff",
+                "message": "Back-off pulling image \"registry.example.internal/checkout/checkout-api:v3.2.0-rc4\""
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "name": "checkout-worker-5b9c6f7d84-hn2mq",
+        "namespace": "checkout",
+        "labels": {
+          "app": "checkout-worker"
+        }
+      },
+      "status": {
+        "phase": "Running",
+        "containerStatuses": [
+          {
+            "name": "checkout-worker",
+            "ready": true,
+            "restartCount": 0,
+            "state": {
+              "running": {
+                "startedAt": "2026-09-12T08:14:11Z"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

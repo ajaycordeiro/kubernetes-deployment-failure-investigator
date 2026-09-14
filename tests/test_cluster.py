@@ -498,6 +498,47 @@ class SnapshotBackedInvestigationTests(TestCase):
         )
 
 
+class SampleSnapshotTests(TestCase):
+    """The snapshot shipped for demonstrations must stay usable."""
+
+    def setUp(self) -> None:
+        directory = (
+            Path(__file__).resolve().parents[1] / "data" / "sample_snapshot"
+        )
+        self.source = ClusterSnapshotSource(directory)
+        self.target = WorkloadTarget(
+            workload_name="checkout-api", namespace="checkout"
+        )
+
+    def test_the_sample_snapshot_supports_an_image_pull_investigation(
+        self,
+    ) -> None:
+        status = self.source.workload_status(self.target)
+        events = self.source.events(self.target)
+        manifest = self.source.manifest(self.target)
+
+        assert status is not None and events is not None
+        assert manifest is not None
+        self.assertIn("ImagePullBackOff", status.content)
+        self.assertEqual(json.loads(status.content)["deployment"]["readyReplicas"], 0)
+        self.assertIn("manifest unknown", events.content)
+        self.assertIn("v3.2.0-rc4", manifest.content)
+
+    def test_the_sample_snapshot_excludes_unrelated_workloads(self) -> None:
+        status = self.source.workload_status(self.target)
+        events = self.source.events(self.target)
+
+        assert status is not None and events is not None
+        self.assertNotIn("checkout-worker", status.content)
+        self.assertNotIn("checkout-worker", events.content)
+
+    def test_the_sample_snapshot_reports_logs_as_unavailable(self) -> None:
+        logs = self.source.container_logs(self.target)
+
+        assert logs is not None
+        self.assertIn("logs unavailable", logs.content)
+
+
 class ClusterModuleSafetyTests(TestCase):
     """The module must remain incapable of changing cluster state."""
 
