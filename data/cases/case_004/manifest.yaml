@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-api
+  namespace: inventory
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inventory-api
+  template:
+    metadata:
+      labels:
+        app: inventory-api
+    spec:
+      containers:
+        - name: inventory-api
+          image: registry.example.internal/inventory/inventory-api:4.0.2
+          envFrom:
+            - configMapRef:
+                name: inventory-config
+          ports:
+            - name: http
+              containerPort: 8080
+

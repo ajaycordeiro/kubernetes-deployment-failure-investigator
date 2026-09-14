@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping-api
+  namespace: shipping
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shipping-api
+  template:
+    metadata:
+      labels:
+        app: shipping-api
+    spec:
+      containers:
+        - name: shipping-api
+          image: registry.example.internal/shipping/shipping-api:6.3.0
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+

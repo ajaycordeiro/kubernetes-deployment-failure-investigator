@@ -1,0 +1,28 @@
+{
+  "deployment": {
+    "name": "reporting-api",
+    "namespace": "reporting",
+    "desired_replicas": 1,
+    "updated_replicas": 1,
+    "ready_replicas": 0,
+    "available_replicas": 0,
+    "unavailable_replicas": 1
+  },
+  "pods": [
+    {
+      "name": "reporting-api-6d59fbb657-n5c7w",
+      "phase": "Pending",
+      "node_name": "worker-01",
+      "ready": false,
+      "container": {
+        "name": "reporting-api",
+        "restart_count": 0,
+        "state": {
+          "type": "waiting",
+          "reason": "ContainerCreating",
+          "message": "Containers are waiting for required volumes"
+        }
+      }
+    }
+  ]
+}

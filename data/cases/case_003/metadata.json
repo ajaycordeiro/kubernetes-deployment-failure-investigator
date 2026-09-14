@@ -1,0 +1,7 @@
+{
+  "case_id": "case_003",
+  "workload_name": "order-api",
+  "namespace": "orders",
+  "container_name": "order-api",
+  "initial_symptom": "Deployment order-api is unavailable, and its container repeatedly restarts with CrashLoopBackOff."
+}

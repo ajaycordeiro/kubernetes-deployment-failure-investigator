@@ -1,0 +1,7 @@
+{
+  "case_id": "case_006",
+  "workload_name": "shipping-api",
+  "namespace": "shipping",
+  "container_name": "shipping-api",
+  "initial_symptom": "Deployment shipping-api has running pods but 0 available replicas because the containers never become ready."
+}

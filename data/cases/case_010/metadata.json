@@ -1,0 +1,7 @@
+{
+  "case_id": "case_010",
+  "workload_name": "checkout-api",
+  "namespace": "checkout",
+  "container_name": "checkout-api",
+  "initial_symptom": "Deployment checkout-api is unavailable, and its container repeatedly restarts with a generic startup error."
+}

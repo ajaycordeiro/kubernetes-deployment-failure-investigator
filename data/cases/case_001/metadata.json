@@ -1,0 +1,7 @@
+{
+  "case_id": "case_001",
+  "workload_name": "payment-api",
+  "namespace": "payments",
+  "container_name": "payment-api",
+  "initial_symptom": "Deployment payment-api has 0 of 2 available replicas, and its pods are reporting ImagePullBackOff."
+}

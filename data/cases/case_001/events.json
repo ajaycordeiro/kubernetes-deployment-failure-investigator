@@ -1,0 +1,45 @@
+{
+  "apiVersion": "v1",
+  "kind": "EventList",
+  "items": [
+    {
+      "type": "Normal",
+      "reason": "Scheduled",
+      "message": "Successfully assigned payments/payment-api-7b6f8c9d54-k2m8p to worker-02",
+      "count": 1,
+      "firstTimestamp": "2026-08-20T14:02:11Z",
+      "lastTimestamp": "2026-08-20T14:02:11Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "payment-api-7b6f8c9d54-k2m8p",
+        "namespace": "payments"
+      }
+    },
+    {
+      "type": "Warning",
+      "reason": "Failed",
+      "message": "Failed to pull image \"registry.example.internal/payments/payment-api:v2.4.9\": rpc error: code = NotFound desc = manifest for payments/payment-api:v2.4.9 not found: manifest unknown",
+      "count": 3,
+      "firstTimestamp": "2026-08-20T14:02:13Z",
+      "lastTimestamp": "2026-08-20T14:03:02Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "payment-api-7b6f8c9d54-k2m8p",
+        "namespace": "payments"
+      }
+    },
+    {
+      "type": "Warning",
+      "reason": "BackOff",
+      "message": "Back-off pulling image \"registry.example.internal/payments/payment-api:v2.4.9\"",
+      "count": 7,
+      "firstTimestamp": "2026-08-20T14:02:15Z",
+      "lastTimestamp": "2026-08-20T14:04:31Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "payment-api-7b6f8c9d54-k2m8p",
+        "namespace": "payments"
+      }
+    }
+  ]
+}

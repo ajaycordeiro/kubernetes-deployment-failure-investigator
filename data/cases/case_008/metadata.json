@@ -1,0 +1,7 @@
+{
+  "case_id": "case_008",
+  "workload_name": "reporting-api",
+  "namespace": "reporting",
+  "container_name": "reporting-api",
+  "initial_symptom": "Deployment reporting-api has no available replicas, and its pod is stuck while preparing storage."
+}

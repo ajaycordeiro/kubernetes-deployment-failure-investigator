@@ -1,0 +1,7 @@
+{
+  "case_id": "case_005",
+  "workload_name": "billing-worker",
+  "namespace": "billing",
+  "container_name": "billing-worker",
+  "initial_symptom": "Deployment billing-worker has no available replica, and the container is waiting with CreateContainerConfigError."
+}

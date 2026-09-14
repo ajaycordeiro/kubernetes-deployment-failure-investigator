@@ -1,0 +1,9 @@
+# Pinned direct dependencies for reproducible local and hosted builds.
+streamlit==1.63.0
+langchain==1.4.0
+langgraph==1.2.11
+langchain-openai==1.6.2
+pydantic==2.13.5
+python-dotenv==1.2.3
+PyYAML==6.0.3
+pytest==9.1.1

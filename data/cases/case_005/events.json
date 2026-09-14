@@ -1,0 +1,19 @@
+{
+  "apiVersion": "v1",
+  "kind": "EventList",
+  "items": [
+    {
+      "type": "Warning",
+      "reason": "Failed",
+      "message": "Error: secret \"billing-db-credentials\" not found",
+      "count": 5,
+      "firstTimestamp": "2026-08-24T08:31:40Z",
+      "lastTimestamp": "2026-08-24T08:34:17Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "billing-worker-749665dcdf-jg5f8",
+        "namespace": "billing"
+      }
+    }
+  ]
+}

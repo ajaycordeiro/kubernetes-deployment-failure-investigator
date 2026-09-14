@@ -1,0 +1,5 @@
+2026-08-25T13:18:02.921Z INFO  shipping-api version 6.3.0 starting
+2026-08-25T13:18:03.104Z INFO  HTTP server listening on 0.0.0.0:8080
+2026-08-25T13:18:03.105Z INFO  Health endpoints registered: GET /live, GET /ready
+2026-08-25T13:18:12.221Z INFO  GET /healthz 404 1ms
+2026-08-25T13:18:22.224Z INFO  GET /healthz 404 1ms

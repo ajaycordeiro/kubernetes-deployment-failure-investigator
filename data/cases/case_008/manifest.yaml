@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reporting-api
+  namespace: reporting
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reporting-api
+  template:
+    metadata:
+      labels:
+        app: reporting-api
+    spec:
+      containers:
+        - name: reporting-api
+          image: registry.example.internal/reporting/reporting-api:5.4.1
+          volumeMounts:
+            - name: reports-storage
+              mountPath: /var/lib/reports
+      volumes:
+        - name: reports-storage
+          persistentVolumeClaim:
+            claimName: reports-data
+

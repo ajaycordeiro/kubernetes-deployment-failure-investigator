@@ -1,0 +1,7 @@
+{
+  "case_id": "case_002",
+  "workload_name": "profile-api",
+  "namespace": "accounts",
+  "container_name": "profile-api",
+  "initial_symptom": "Deployment profile-api has no available replicas, and its pod is reporting ImagePullBackOff."
+}

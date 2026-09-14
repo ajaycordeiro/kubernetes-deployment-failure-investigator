@@ -1,0 +1,8 @@
+2026-08-22T16:44:30.102Z INFO  Starting order-api version 1.8.0
+2026-08-22T16:44:30.108Z INFO  Loading WSGI application order_service.app
+2026-08-22T16:44:30.112Z ERROR Application startup failed
+Traceback (most recent call last):
+  File "/app/start.py", line 4, in <module>
+    from gunicorn.app.wsgiapp import run
+ModuleNotFoundError: No module named 'gunicorn'
+2026-08-22T16:44:30.113Z ERROR Process exiting with status 1

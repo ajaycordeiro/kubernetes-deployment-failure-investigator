@@ -1,0 +1,27 @@
+# Python environments
+.venv*/
+venv/
+
+# Python caches and build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

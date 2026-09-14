@@ -1,0 +1,7 @@
+{
+  "case_id": "case_009",
+  "workload_name": "catalog-api",
+  "namespace": "catalog",
+  "container_name": "catalog-api",
+  "initial_symptom": "Deployment catalog-api has no available replicas, and its pod is reporting ImagePullBackOff."
+}

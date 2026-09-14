@@ -1,0 +1,41 @@
+{
+  "deployment": {
+    "name": "payment-api",
+    "namespace": "payments",
+    "desired_replicas": 2,
+    "updated_replicas": 2,
+    "ready_replicas": 0,
+    "available_replicas": 0,
+    "unavailable_replicas": 2
+  },
+  "pods": [
+    {
+      "name": "payment-api-7b6f8c9d54-k2m8p",
+      "phase": "Pending",
+      "ready": false,
+      "container": {
+        "name": "payment-api",
+        "restart_count": 0,
+        "state": {
+          "type": "waiting",
+          "reason": "ImagePullBackOff",
+          "message": "Back-off pulling image registry.example.internal/payments/payment-api:v2.4.9"
+        }
+      }
+    },
+    {
+      "name": "payment-api-7b6f8c9d54-w7q4n",
+      "phase": "Pending",
+      "ready": false,
+      "container": {
+        "name": "payment-api",
+        "restart_count": 0,
+        "state": {
+          "type": "waiting",
+          "reason": "ImagePullBackOff",
+          "message": "Back-off pulling image registry.example.internal/payments/payment-api:v2.4.9"
+        }
+      }
+    }
+  ]
+}

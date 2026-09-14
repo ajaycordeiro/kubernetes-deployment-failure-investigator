@@ -1,0 +1,36 @@
+{
+  "deployment": {
+    "name": "analytics-worker",
+    "namespace": "analytics",
+    "desired_replicas": 1,
+    "updated_replicas": 1,
+    "ready_replicas": 0,
+    "available_replicas": 0,
+    "unavailable_replicas": 1
+  },
+  "pods": [
+    {
+      "name": "analytics-worker-55d4464fcf-z8j3k",
+      "phase": "Pending",
+      "node_name": null,
+      "ready": false,
+      "conditions": [
+        {
+          "type": "PodScheduled",
+          "status": "False",
+          "reason": "Unschedulable",
+          "message": "0/3 nodes are available: 3 Insufficient cpu."
+        }
+      ],
+      "container": {
+        "name": "analytics-worker",
+        "restart_count": 0,
+        "state": {
+          "type": "waiting",
+          "reason": "PodInitializing",
+          "message": "Pod has not been scheduled"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "apiVersion": "v1",
+  "kind": "EventList",
+  "items": [
+    {
+      "type": "Normal",
+      "reason": "Pulled",
+      "message": "Container image \"registry.example.internal/inventory/inventory-api:4.0.2\" already present on machine",
+      "count": 1,
+      "firstTimestamp": "2026-08-23T11:07:14Z",
+      "lastTimestamp": "2026-08-23T11:07:14Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "inventory-api-7c895c76c9-bx6jk",
+        "namespace": "inventory"
+      }
+    },
+    {
+      "type": "Warning",
+      "reason": "Failed",
+      "message": "Error: configmap \"inventory-config\" not found",
+      "count": 6,
+      "firstTimestamp": "2026-08-23T11:07:15Z",
+      "lastTimestamp": "2026-08-23T11:10:01Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "inventory-api-7c895c76c9-bx6jk",
+        "namespace": "inventory"
+      }
+    }
+  ]
+}

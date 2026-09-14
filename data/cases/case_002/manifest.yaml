@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-api
+  namespace: accounts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: profile-api
+  template:
+    metadata:
+      labels:
+        app: profile-api
+    spec:
+      imagePullSecrets:
+        - name: accounts-registry
+      containers:
+        - name: profile-api
+          image: private-registry.example.internal/accounts/profile-api:3.2.1
+          ports:
+            - name: http
+              containerPort: 8080
+

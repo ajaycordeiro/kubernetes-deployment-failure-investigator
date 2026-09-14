@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-worker
+  namespace: billing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: billing-worker
+  template:
+    metadata:
+      labels:
+        app: billing-worker
+    spec:
+      containers:
+        - name: billing-worker
+          image: registry.example.internal/billing/billing-worker:2.7.3
+          env:
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: billing-db-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: billing-db-credentials
+                  key: password

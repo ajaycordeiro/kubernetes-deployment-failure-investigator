@@ -1,0 +1,34 @@
+{
+  "deployment": {
+    "name": "shipping-api",
+    "namespace": "shipping",
+    "desired_replicas": 2,
+    "updated_replicas": 2,
+    "ready_replicas": 0,
+    "available_replicas": 0,
+    "unavailable_replicas": 2
+  },
+  "pods": [
+    {
+      "name": "shipping-api-658879dd96-4ht8m",
+      "phase": "Running",
+      "ready": false,
+      "conditions": [
+        {
+          "type": "Ready",
+          "status": "False",
+          "reason": "ContainersNotReady",
+          "message": "containers with unready status: [shipping-api]"
+        }
+      ],
+      "container": {
+        "name": "shipping-api",
+        "restart_count": 0,
+        "state": {
+          "type": "running",
+          "started_at": "2026-08-25T13:18:02Z"
+        }
+      }
+    }
+  ]
+}

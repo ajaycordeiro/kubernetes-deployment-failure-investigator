@@ -1,0 +1,7 @@
+{
+  "case_id": "case_007",
+  "workload_name": "analytics-worker",
+  "namespace": "analytics",
+  "container_name": "analytics-worker",
+  "initial_symptom": "Deployment analytics-worker has a pod that remains Pending and has not been assigned to a node."
+}

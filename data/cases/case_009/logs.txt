@@ -1,0 +1,1 @@
+[Logs unavailable: container "catalog-api" has not started because its image could not be pulled.]

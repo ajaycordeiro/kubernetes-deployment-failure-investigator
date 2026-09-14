@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "cases": {
+    "case_001": {
+      "failure_category": "ImagePullBackOff",
+      "expected_root_cause": "invalid_image_tag",
+      "acceptable_diagnosis_terms": [
+        "invalid image tag",
+        "image tag does not exist",
+        "manifest unknown"
+      ],
+      "acceptable_action_terms": [
+        "verify image tag",
+        "use an existing image tag",
+        "update the reviewed deployment manifest"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "events",
+        "manifest"
+      ]
+    },
+    "case_002": {
+      "failure_category": "ImagePullBackOff",
+      "expected_root_cause": "registry_authentication_failure",
+      "acceptable_diagnosis_terms": [
+        "registry authentication failure",
+        "missing image pull secret",
+        "unauthorized image pull"
+      ],
+      "acceptable_action_terms": [
+        "verify image pull secret",
+        "verify registry credentials",
+        "check registry permissions"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "events",
+        "manifest"
+      ]
+    },
+    "case_003": {
+      "failure_category": "CrashLoopBackOff",
+      "expected_root_cause": "missing_runtime_dependency",
+      "acceptable_diagnosis_terms": [
+        "gunicorn is missing",
+        "missing runtime dependency",
+        "module not found"
+      ],
+      "acceptable_action_terms": [
+        "rebuild the application image",
+        "include gunicorn in the image",
+        "validate the corrected image"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "logs"
+      ]
+    },
+    "case_004": {
+      "failure_category": "CreateContainerConfigError",
+      "expected_root_cause": "missing_configmap",
+      "acceptable_diagnosis_terms": [
+        "missing ConfigMap",
+        "inventory-config not found",
+        "unavailable ConfigMap"
+      ],
+      "acceptable_action_terms": [
+        "verify the ConfigMap exists",
+        "correct the ConfigMap reference",
+        "use the reviewed configuration"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "events",
+        "manifest"
+      ]
+    },
+    "case_005": {
+      "failure_category": "CreateContainerConfigError",
+      "expected_root_cause": "missing_secret",
+      "acceptable_diagnosis_terms": [
+        "missing Secret",
+        "billing-db-credentials not found",
+        "unavailable Secret"
+      ],
+      "acceptable_action_terms": [
+        "verify the Secret exists",
+        "correct the Secret reference",
+        "verify the Secret name and key"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "events",
+        "manifest"
+      ]
+    },
+    "case_006": {
+      "failure_category": "NotReady",
+      "expected_root_cause": "incorrect_readiness_probe_path",
+      "acceptable_diagnosis_terms": [
+        "incorrect readiness probe path",
+        "readiness probe uses /healthz instead of /ready",
+        "readiness endpoint mismatch"
+      ],
+      "acceptable_action_terms": [
+        "update the readiness probe path",
+        "align the probe with /ready",
+        "review and test the probe configuration"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "events",
+        "logs",
+        "manifest"
+      ]
+    },
+    "case_007": {
+      "failure_category": "Pending",
+      "expected_root_cause": "insufficient_cpu",
+      "acceptable_diagnosis_terms": [
+        "insufficient CPU",
+        "pod cannot be scheduled",
+        "resource request exceeds available capacity"
+      ],
+      "acceptable_action_terms": [
+        "review CPU request",
+        "verify cluster capacity",
+        "use the normal capacity review process"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "events",
+        "manifest"
+      ]
+    },
+    "case_008": {
+      "failure_category": "FailedMount",
+      "expected_root_cause": "missing_pvc",
+      "acceptable_diagnosis_terms": [
+        "missing PersistentVolumeClaim",
+        "reports-data not found",
+        "missing PVC"
+      ],
+      "acceptable_action_terms": [
+        "verify the PVC exists",
+        "correct the claim reference",
+        "involve the storage owner if required"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "events",
+        "manifest"
+      ]
+    },
+    "case_009": {
+      "failure_category": "ImagePullBackOff",
+      "expected_root_cause": "invalid_image_tag",
+      "acceptable_diagnosis_terms": [
+        "invalid image tag",
+        "image tag does not exist",
+        "manifest unknown"
+      ],
+      "acceptable_action_terms": [
+        "verify image tag",
+        "use an existing image tag",
+        "update the reviewed deployment manifest"
+      ],
+      "should_escalate": false,
+      "critical_sources": [
+        "workload_status",
+        "events"
+      ],
+      "expected_recovery": {
+        "tool": "get_kubernetes_events",
+        "first_attempt": "retryable_timeout",
+        "second_attempt": "success"
+      }
+    },
+    "case_010": {
+      "failure_category": "AmbiguousStartupFailure",
+      "expected_root_cause": null,
+      "acceptable_diagnosis_terms": [],
+      "acceptable_action_terms": [
+        "inspect complete startup logs",
+        "verify referenced configuration",
+        "engineer review"
+      ],
+      "should_escalate": true,
+      "acceptable_handoff_reasons": [
+        "insufficient evidence",
+        "conflicting evidence",
+        "unable to distinguish configuration causes"
+      ],
+      "critical_sources": [
+        "workload_status",
+        "events",
+        "logs",
+        "manifest"
+      ]
+    }
+  }
+}

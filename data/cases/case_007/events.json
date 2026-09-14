@@ -1,0 +1,19 @@
+{
+  "apiVersion": "v1",
+  "kind": "EventList",
+  "items": [
+    {
+      "type": "Warning",
+      "reason": "FailedScheduling",
+      "message": "0/3 nodes are available: 3 Insufficient cpu. preemption: 0/3 nodes are available: 3 No preemption victims found for incoming pod.",
+      "count": 9,
+      "firstTimestamp": "2026-08-26T10:05:00Z",
+      "lastTimestamp": "2026-08-26T10:09:12Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "analytics-worker-55d4464fcf-z8j3k",
+        "namespace": "analytics"
+      }
+    }
+  ]
+}

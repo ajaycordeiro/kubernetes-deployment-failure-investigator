@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-worker
+  namespace: analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analytics-worker
+  template:
+    metadata:
+      labels:
+        app: analytics-worker
+    spec:
+      containers:
+        - name: analytics-worker
+          image: registry.example.internal/analytics/analytics-worker:9.1.2
+          resources:
+            requests:
+              cpu: "4"
+              memory: 2Gi
+            limits:
+              cpu: "4"
+              memory: 2Gi
+

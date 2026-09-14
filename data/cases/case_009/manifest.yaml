@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-api
+  namespace: catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-api
+  template:
+    metadata:
+      labels:
+        app: catalog-api
+    spec:
+      containers:
+        - name: catalog-api
+          image: registry.example.internal/catalog/catalog-api:v5.1.0-rc9
+          ports:
+            - name: http
+              containerPort: 8080
+

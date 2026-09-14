@@ -1,0 +1,32 @@
+{
+  "deployment": {
+    "name": "checkout-api",
+    "namespace": "checkout",
+    "desired_replicas": 2,
+    "updated_replicas": 2,
+    "ready_replicas": 0,
+    "available_replicas": 0,
+    "unavailable_replicas": 2
+  },
+  "pods": [
+    {
+      "name": "checkout-api-59d7b6b4cb-v2r8h",
+      "phase": "Running",
+      "ready": false,
+      "container": {
+        "name": "checkout-api",
+        "restart_count": 4,
+        "state": {
+          "type": "waiting",
+          "reason": "CrashLoopBackOff",
+          "message": "Back-off restarting failed container checkout-api"
+        },
+        "last_termination": {
+          "reason": "Error",
+          "exit_code": 1,
+          "finished_at": "2026-08-29T15:14:52Z"
+        }
+      }
+    }
+  ]
+}

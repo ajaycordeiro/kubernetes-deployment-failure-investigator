@@ -1,0 +1,5 @@
+2026-08-29T15:14:51.441Z INFO  checkout-api version 7.0.0 starting
+2026-08-29T15:14:51.607Z INFO  Loading external provider configuration
+2026-08-29T15:14:51.814Z ERROR Provider initialization failed: required configuration is unavailable
+2026-08-29T15:14:51.815Z ERROR Startup aborted
+[Earlier diagnostic detail is unavailable because the captured log excerpt was truncated.]

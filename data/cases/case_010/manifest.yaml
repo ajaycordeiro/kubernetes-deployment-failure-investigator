@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-api
+  namespace: checkout
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: checkout-api
+  template:
+    metadata:
+      labels:
+        app: checkout-api
+    spec:
+      containers:
+        - name: checkout-api
+          image: registry.example.internal/checkout/checkout-api:7.0.0
+          envFrom:
+            - configMapRef:
+                name: checkout-config
+            - secretRef:
+                name: checkout-credentials
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10

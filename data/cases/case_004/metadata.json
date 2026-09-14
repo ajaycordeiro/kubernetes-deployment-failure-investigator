@@ -1,0 +1,7 @@
+{
+  "case_id": "case_004",
+  "workload_name": "inventory-api",
+  "namespace": "inventory",
+  "container_name": "inventory-api",
+  "initial_symptom": "Deployment inventory-api has no available replicas, and its container is waiting with CreateContainerConfigError."
+}

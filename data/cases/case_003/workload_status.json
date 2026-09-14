@@ -1,0 +1,32 @@
+{
+  "deployment": {
+    "name": "order-api",
+    "namespace": "orders",
+    "desired_replicas": 1,
+    "updated_replicas": 1,
+    "ready_replicas": 0,
+    "available_replicas": 0,
+    "unavailable_replicas": 1
+  },
+  "pods": [
+    {
+      "name": "order-api-5f49d8b678-d4p2x",
+      "phase": "Running",
+      "ready": false,
+      "container": {
+        "name": "order-api",
+        "restart_count": 7,
+        "state": {
+          "type": "waiting",
+          "reason": "CrashLoopBackOff",
+          "message": "Back-off restarting failed container order-api"
+        },
+        "last_termination": {
+          "reason": "Error",
+          "exit_code": 1,
+          "finished_at": "2026-08-22T16:44:31Z"
+        }
+      }
+    }
+  ]
+}

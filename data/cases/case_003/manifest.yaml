@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-api
+  namespace: orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-api
+  template:
+    metadata:
+      labels:
+        app: order-api
+    spec:
+      containers:
+        - name: order-api
+          image: registry.example.internal/orders/order-api:1.8.0
+          command:
+            - python
+            - /app/start.py
+          ports:
+            - name: http
+              containerPort: 8080
+

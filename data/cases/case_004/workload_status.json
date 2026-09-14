@@ -1,0 +1,27 @@
+{
+  "deployment": {
+    "name": "inventory-api",
+    "namespace": "inventory",
+    "desired_replicas": 2,
+    "updated_replicas": 2,
+    "ready_replicas": 0,
+    "available_replicas": 0,
+    "unavailable_replicas": 2
+  },
+  "pods": [
+    {
+      "name": "inventory-api-7c895c76c9-bx6jk",
+      "phase": "Pending",
+      "ready": false,
+      "container": {
+        "name": "inventory-api",
+        "restart_count": 0,
+        "state": {
+          "type": "waiting",
+          "reason": "CreateContainerConfigError",
+          "message": "configmap \"inventory-config\" not found"
+        }
+      }
+    }
+  ]
+}

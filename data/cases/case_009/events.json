@@ -1,0 +1,38 @@
+{
+  "apiVersion": "v1",
+  "kind": "EventList",
+  "tool_behavior": {
+    "fail_first_attempts": 1,
+    "error_type": "timeout",
+    "error_message": "Synthetic timeout while retrieving Kubernetes events.",
+    "retryable": true
+  },
+  "items": [
+    {
+      "type": "Warning",
+      "reason": "Failed",
+      "message": "Failed to pull image \"registry.example.internal/catalog/catalog-api:v5.1.0-rc9\": rpc error: code = NotFound desc = manifest for catalog/catalog-api:v5.1.0-rc9 not found: manifest unknown",
+      "count": 3,
+      "firstTimestamp": "2026-08-28T12:41:06Z",
+      "lastTimestamp": "2026-08-28T12:43:27Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "catalog-api-7c77dc9457-q6b9s",
+        "namespace": "catalog"
+      }
+    },
+    {
+      "type": "Warning",
+      "reason": "BackOff",
+      "message": "Back-off pulling image \"registry.example.internal/catalog/catalog-api:v5.1.0-rc9\"",
+      "count": 6,
+      "firstTimestamp": "2026-08-28T12:41:08Z",
+      "lastTimestamp": "2026-08-28T12:44:03Z",
+      "involvedObject": {
+        "kind": "Pod",
+        "name": "catalog-api-7c77dc9457-q6b9s",
+        "namespace": "catalog"
+      }
+    }
+  ]
+}

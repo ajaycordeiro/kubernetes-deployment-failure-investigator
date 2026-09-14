@@ -1,0 +1,27 @@
+{
+  "deployment": {
+    "name": "billing-worker",
+    "namespace": "billing",
+    "desired_replicas": 1,
+    "updated_replicas": 1,
+    "ready_replicas": 0,
+    "available_replicas": 0,
+    "unavailable_replicas": 1
+  },
+  "pods": [
+    {
+      "name": "billing-worker-749665dcdf-jg5f8",
+      "phase": "Pending",
+      "ready": false,
+      "container": {
+        "name": "billing-worker",
+        "restart_count": 0,
+        "state": {
+          "type": "waiting",
+          "reason": "CreateContainerConfigError",
+          "message": "secret \"billing-db-credentials\" not found"
+        }
+      }
+    }
+  ]
+}
