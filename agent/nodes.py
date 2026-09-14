@@ -48,6 +48,7 @@ from tools import (
     search_runbook,
 )
 from tools.safety import neutralize_untrusted_text
+from tools.cluster import ClusterAccessError, resolve_cluster_source
 from tools.diagnostics import DIAGNOSTIC_TOOL_ALLOWLIST, DiagnosticToolName
 
 
@@ -263,12 +264,17 @@ class InvestigationNodes:
         safe_question, removed = neutralize_untrusted_text(submission.question)
         if removed:
             submission = submission.model_copy(update={"question": safe_question})
+        try:
+            cluster_source_available = resolve_cluster_source() is not None
+        except ClusterAccessError:
+            cluster_source_available = False
         return {
             "submission": submission,
             "question": safe_question,
             "workload_name": submission.workload_name,
             "namespace": submission.namespace,
             "evidence_availability": submission.evidence_availability(),
+            "cluster_source_available": cluster_source_available,
             "evidence": [],
             "reference_context": [],
             "tools_called": [],

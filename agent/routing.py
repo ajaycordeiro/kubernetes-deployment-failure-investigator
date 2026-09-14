@@ -121,6 +121,8 @@ def _source_available(
     state: InvestigationState,
     source: EvidenceSourceName,
 ) -> bool:
+    if state.get("cluster_source_available"):
+        return True
     if state["submission"].demo_id is not None:
         return True
     return bool(getattr(state["evidence_availability"], source))
@@ -171,6 +173,8 @@ def recommended_missing_source(
 ) -> EvidenceSourceName | None:
     """Choose the single missing source most likely to resolve uncertainty."""
 
+    if state.get("cluster_source_available"):
+        return None
     if state["submission"].demo_id is not None:
         return None
     for tool_name in preferred_tool_order(state):

@@ -14,6 +14,11 @@ from pydantic import ValidationError, field_validator
 from agent.input import redact_sensitive_text
 from agent.schemas import StrictModel, SubmittedInvestigation, ToolResult
 from tools.base import FixtureLoadError, load_fixture
+from tools.cluster import (
+    ClusterAccessError,
+    WorkloadTarget,
+    resolve_cluster_source,
+)
 from tools.manifest import select_diagnostic_config
 from tools.safety import (
     bound_text,
@@ -269,7 +274,7 @@ def _provided_result(
     source: str | None = None,
     keep_recent: bool = False,
     removed_instructions: int = 0,
-    mode: Literal["submitted", "demo"] = "submitted",
+    mode: Literal["submitted", "demo", "cluster"] = "submitted",
 ) -> ToolResult:
     bounded, truncated = bound_text(
         content,
@@ -365,6 +370,60 @@ def _inspect_submitted_text(
     )
 
 
+_CLUSTER_CAPABILITY_LIMITS: Final[dict[str, int]] = {
+    "workload_status": MAX_STATUS_RESULT_CHARS,
+    "kubernetes_events": MAX_EVENTS_RESULT_CHARS,
+    "container_logs": MAX_LOG_RESULT_CHARS,
+    "manifest_yaml": MAX_MANIFEST_RESULT_CHARS,
+}
+
+
+def _cluster_result(
+    canonical: SubmittedInvestigation,
+    capability: str,
+) -> ToolResult | None:
+    """Retrieve from the configured cluster source before local evidence.
+
+    Returns None when no source is configured or the source holds nothing for
+    this capability, so the submitted and corpus paths still apply.
+    """
+
+    target = WorkloadTarget(
+        workload_name=canonical.workload_name,
+        namespace=canonical.namespace,
+    )
+    try:
+        source = resolve_cluster_source()
+        if source is None:
+            return None
+        fetch = {
+            "workload_status": source.workload_status,
+            "kubernetes_events": source.events,
+            "container_logs": source.container_logs,
+            "manifest_yaml": source.manifest,
+        }[capability]
+        document = fetch(target)
+    except ClusterAccessError as error:
+        return ToolResult(
+            ok=False,
+            error=_safe_error_message(f"cluster_source_error: {error}"),
+            retryable=error.retryable,
+            source=f"cluster/{capability}",
+        )
+    if document is None:
+        return None
+    return _provided_result(
+        capability=capability,
+        content=document.content,
+        content_format=document.content_format,
+        maximum_chars=_CLUSTER_CAPABILITY_LIMITS[capability],
+        source=document.origin,
+        keep_recent=capability == "container_logs",
+        removed_instructions=document.untrusted_instructions_removed,
+        mode="cluster",
+    )
+
+
 @tool("inspect_workload_status", args_schema=SubmittedInspectionInput)
 def inspect_workload_status(
     submission: Annotated[SubmittedInvestigation, InjectedToolArg],
@@ -375,6 +434,9 @@ def inspect_workload_status(
         canonical = _canonical_submission(submission)
     except (ValidationError, ValueError):
         return _invalid_submission_result("workload_status")
+    cluster = _cluster_result(canonical, "workload_status")
+    if cluster is not None:
+        return cluster
     if canonical.workload_status is not None:
         return _inspect_submitted_text(
             canonical.workload_status,
@@ -405,6 +467,9 @@ def inspect_kubernetes_events(
         canonical = _canonical_submission(submission)
     except (ValidationError, ValueError):
         return _invalid_submission_result("kubernetes_events")
+    cluster = _cluster_result(canonical, "kubernetes_events")
+    if cluster is not None:
+        return cluster
     if canonical.kubernetes_events is not None:
         return _inspect_submitted_text(
             canonical.kubernetes_events,
@@ -449,6 +514,9 @@ def inspect_container_logs(
         canonical = _canonical_submission(submission)
     except (ValidationError, ValueError):
         return _invalid_submission_result("container_logs")
+    cluster = _cluster_result(canonical, "container_logs")
+    if cluster is not None:
+        return cluster
     if canonical.container_logs is not None:
         if canonical.container_logs.strip().casefold().startswith(
             "[logs unavailable:"
@@ -493,6 +561,9 @@ def inspect_manifest_config(
         canonical = _canonical_submission(submission)
     except (ValidationError, ValueError):
         return _invalid_submission_result("manifest_yaml")
+    cluster = _cluster_result(canonical, "manifest_yaml")
+    if cluster is not None:
+        return cluster
     if canonical.manifest_yaml is not None:
         try:
             documents = list(yaml.safe_load_all(canonical.manifest_yaml))

@@ -29,6 +29,7 @@ class InvestigationState(TypedDict):
     namespace: str | None
     symptom_assessment: SymptomAssessment
     evidence_availability: EvidenceAvailability
+    cluster_source_available: bool
 
     evidence: list[EvidenceItem]
     reference_context: list[dict[str, Any]]
