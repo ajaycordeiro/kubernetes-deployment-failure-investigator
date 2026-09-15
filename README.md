@@ -234,6 +234,7 @@ the requested evidence instead of starting over.
 ~~~text
 .
 ├── app.py                       # Streamlit entry point
+├── run_all_cases.py             # Optional live-model corpus smoke runner
 ├── agent/
 │   ├── graph.py                 # The single natural-language LangGraph workflow
 │   ├── input.py                 # Normalization, limits, YAML checks, redaction
@@ -372,6 +373,14 @@ Run the same checks locally:
 python -m compileall app.py agent tools tests
 python -m pytest -q
 python -m pip check
+~~~
+
+With valid Nebius credentials configured, you can also exercise all ten bundled
+cases against the live model. This is an optional smoke run that makes provider
+requests; it is not part of the deterministic test suite:
+
+~~~powershell
+python run_all_cases.py
 ~~~
 
 ## Known limitations

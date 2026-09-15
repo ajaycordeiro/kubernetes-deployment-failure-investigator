@@ -2,7 +2,6 @@
 
 ## Project scope
 
-- Build only the Week 3 Kubernetes Deployment Failure Investigator described in the parent project plan.
 - Use Python 3.11, LangChain, LangGraph, and Streamlit.
 - Keep the implementation small: one stateful investigation graph and five read-only diagnostic tools.
 - Evidence may come from a real cluster, a captured `kubectl` snapshot, pasted text, or the synthetic fixtures under **data/cases/**; the sanitized runbook lives under **data/runbooks/**.
