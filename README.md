@@ -1,6 +1,6 @@
 # Kubernetes Deployment Failure Investigator
 
-A Week 3 certification project demonstrating a bounded, stateful AI agent with
+A Stateful AI agent with
 LangChain, LangGraph, Nebius Token Factory, and Streamlit. `app.py` is the
 application entry point.
 
